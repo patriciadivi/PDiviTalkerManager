@@ -17,6 +17,17 @@ app.get('/talker', async (_req, res) => {
 });
 
 // 2 Requisito - Crie o endpoint GET /talker/:id
+
+app.get('/talker/:id', async (req, res) => {
+  const { id: talkerId } = req.params;
+  const talkers = await read();
+  const getId = talkers.find((talkerElement) => talkerElement.id === +talkerId);
+  
+  if (!getId) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+
+  return res.status(200).json(getId);
+});
+
 // 3 Requisito - Crie o endpoint POST /login
 // 4 Requisito - Adicione as validações para o endpoint /login
 // 5 Requisito - Crie o endpoint POST /talker
