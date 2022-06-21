@@ -33,7 +33,7 @@ app.get('/talker/:id', async (req, res) => {
 });
 
 // 3 Requisito - Crie o endpoint POST /login
-
+// 4 Requisito - Adicione as validações para o endpoint /login | apartir do arquivo validateUser.js
 app.post('/login', validateUser, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -44,8 +44,6 @@ app.post('/login', validateUser, (req, res) => {
   
   res.status(200).json({ token: newToken });
 });
-
-// 4 Requisito - Adicione as validações para o endpoint /login
 
 // app.post('/login', async (req, res) => {
 //   const { email, password } = req.body;
