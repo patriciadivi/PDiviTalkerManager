@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const read = require('./helpers/read');
+const randomToken = require('./helpers/crypto');
+
+let newToken = '';
 
 const app = express();
 app.use(bodyParser.json());
@@ -29,7 +32,35 @@ app.get('/talker/:id', async (req, res) => {
 });
 
 // 3 Requisito - Crie o endpoint POST /login
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email e senha são obrigatórios' });
+  }
+  const token = randomToken();
+  newToken = token;
+  
+  res.status(200).json({ token: newToken });
+});
+
 // 4 Requisito - Adicione as validações para o endpoint /login
+
+// app.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+//   const talkers = await read();
+
+//   const getName = talkers.find((talkerElement) => talkerElement.email === email);
+//   const getPassword = talkers.find((talkerElement) => talkerElement.password === password);
+
+//   if (!getName) return res.status(400).json({ message: `O campo ${email} é obrigatório` });
+//   if (!getPassword) {
+//     return res.status(400).json({ message: `O ${password} deve ter pelo menos 6 caracteres` });
+//   }
+
+//   return res.status(200).json({ message: 'Pessoa palestrante encontrada' });
+// });
+
 // 5 Requisito - Crie o endpoint POST /talker
 // 6 Requisito - Crie o endpoint PUT /talker/:id
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
