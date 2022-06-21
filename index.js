@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const read = require('./helpers/read');
 const randomToken = require('./helpers/crypto');
+const validateUser = require('./ middlewares/validateUser.js');
 
 let newToken = '';
 
@@ -33,7 +34,7 @@ app.get('/talker/:id', async (req, res) => {
 
 // 3 Requisito - Crie o endpoint POST /login
 
-app.post('/login', (req, res) => {
+app.post('/login', validateUser, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: 'Email e senha são obrigatórios' });
