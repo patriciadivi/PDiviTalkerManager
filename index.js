@@ -1,8 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const read = require('./helpers/read');
-const randomToken = require('./helpers/crypto');
+// const randomToken = require('./helpers/crypto');
 const validateUser = require('./ middlewares/validateUser.js');
+// const validateInformacion = require('./ middlewares/validateUserInformacion');
+// const validateAuthorization = require('./ middlewares/validateAuthorization');
+const tokenGenerator = require('./helpers/tokenGenerator');
 
 let newToken = '';
 
@@ -10,7 +13,6 @@ const app = express();
 app.use(bodyParser.json());
 
 // 1 Requisito - Crie o endpoint GET /talker:
- 
 app.get('/talker', async (_req, res) => {
   const talkers = await read();
   const getAll = talkers.map((talkerElement) => talkerElement);
@@ -21,8 +23,8 @@ app.get('/talker', async (_req, res) => {
 });
 
 // 2 Requisito - Crie o endpoint GET /talker/:id
-
 app.get('/talker/:id', async (req, res) => {
+  console.log(req.body);
   const { id: talkerId } = req.params;
   const talkers = await read();
   const getId = talkers.find((talkerElement) => talkerElement.id === +talkerId);
@@ -39,28 +41,32 @@ app.post('/login', validateUser, (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ message: 'Email e senha são obrigatórios' });
   }
-  const token = randomToken();
-  newToken = token;
+  newToken = tokenGenerator();
   
   res.status(200).json({ token: newToken });
 });
 
-// app.post('/login', async (req, res) => {
-//   const { email, password } = req.body;
-//   const talkers = await read();
-
-//   const getName = talkers.find((talkerElement) => talkerElement.email === email);
-//   const getPassword = talkers.find((talkerElement) => talkerElement.password === password);
-
-//   if (!getName) return res.status(400).json({ message: `O campo ${email} é obrigatório` });
-//   if (!getPassword) {
-//     return res.status(400).json({ message: `O ${password} deve ter pelo menos 6 caracteres` });
-//   }
-
-//   return res.status(200).json({ message: 'Pessoa palestrante encontrada' });
-// });
-
 // 5 Requisito - Crie o endpoint POST /talker
+app.post('/talker', (req, res) => {
+  const { name, age, talk: { watchedAt, rate } } = req.body;
+  // console.log(name, age, watchedAt, rate);
+
+  newToken = tokenGenerator();
+  const dataBody = {
+    name,
+    age,
+    talk: {
+      watchedAt,
+      rate,
+    },
+    newToken,
+  };
+  if (!name || !age || !watchedAt || !rate) {
+    return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+  }
+  res.status(200).json(dataBody);
+});
+
 // 6 Requisito - Crie o endpoint PUT /talker/:id
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
 // 8 Requisito - Crie o endpoint GET /talker/search?q=searchTerm
