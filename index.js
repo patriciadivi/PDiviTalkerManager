@@ -64,6 +64,11 @@ app.post('/talker', validateAuthorization, validateUserDados,
 });
 
 // 6 Requisito - Crie o endpoint PUT /talker/:id
+
+app.put('/talker/:id', (_req, res) => {
+  res.status(200).json({ message: 'OK' });
+});
+
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
 // 8 Requisito - Crie o endpoint GET /talker/search?q=searchTerm
 
