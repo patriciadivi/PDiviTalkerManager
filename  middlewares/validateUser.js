@@ -1,5 +1,5 @@
-const validateLogin = require('../helpers/validateLogin.js');
-const validatePassword = require('../helpers/validatePassword.js');
+const validateLogin = require('../helpers/validateLogin');
+const validatePassword = require('../helpers/validatePassword');
 
 const validateUser = (req, res, next) => {
     const { email, password } = req.body;

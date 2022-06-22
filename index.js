@@ -1,13 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const read = require('./helpers/read');
-// const randomToken = require('./helpers/crypto');
-const validateUser = require('./ middlewares/validateUser.js');
-// const validateInformacion = require('./ middlewares/validateUserInformacion');
-// const validateAuthorization = require('./ middlewares/validateAuthorization');
-const tokenGenerator = require('./helpers/tokenGenerator');
-
-let newToken = '';
+const { read, tokenWrite, write, tokenGenerator } = require('./helpers/index');
+const validateUser = require('./ middlewares/validateUser');
+const validateUserDados = require('./ middlewares/validateUserInformacion/validateUserDados');
+const validateUserTalk = require('./ middlewares/validateUserInformacion/validateUserTalk');
+const validateUserTalkAll = require('./ middlewares/validateUserInformacion/validateUserTalkAll');
+const validateAuthorization = require('./ middlewares/validateAuthorization');
 
 const app = express();
 app.use(bodyParser.json());
@@ -24,7 +22,7 @@ app.get('/talker', async (_req, res) => {
 
 // 2 Requisito - Crie o endpoint GET /talker/:id
 app.get('/talker/:id', async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { id: talkerId } = req.params;
   const talkers = await read();
   const getId = talkers.find((talkerElement) => talkerElement.id === +talkerId);
@@ -36,35 +34,33 @@ app.get('/talker/:id', async (req, res) => {
 
 // 3 Requisito - Crie o endpoint POST /login
 // 4 Requisito - Adicione as validações para o endpoint /login | apartir do arquivo validateUser.js
-app.post('/login', validateUser, (req, res) => {
+app.post('/login', validateUser, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: 'Email e senha são obrigatórios' });
   }
-  newToken = tokenGenerator();
+  const newToken = tokenGenerator();
+  // console.log(newToken);
+  const tokenNow = newToken;
+  await tokenWrite(tokenNow);
   
-  res.status(200).json({ token: newToken });
+  res.status(200).json({ token: tokenNow });
 });
 
 // 5 Requisito - Crie o endpoint POST /talker
-app.post('/talker', (req, res) => {
-  const { name, age, talk: { watchedAt, rate } } = req.body;
-  // console.log(name, age, watchedAt, rate);
+app.post('/talker', validateAuthorization, validateUserDados, 
+  validateUserTalk, validateUserTalkAll, async (req, res) => {
+  const { name, age } = req.body;
+  const { talk } = req.body;
+  const talkers = await read();
+  const generatorId = talkers.length + 1;
 
-  newToken = tokenGenerator();
-  const dataBody = {
-    name,
-    age,
-    talk: {
-      watchedAt,
-      rate,
-    },
-    newToken,
-  };
-  if (!name || !age || !watchedAt || !rate) {
-    return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
-  }
-  res.status(200).json(dataBody);
+  const dataBody = { id: generatorId, name, age, talk };
+  
+  talkers.push(dataBody);
+  await write(talkers);
+
+  res.status(201).json(dataBody);
 });
 
 // 6 Requisito - Crie o endpoint PUT /talker/:id
