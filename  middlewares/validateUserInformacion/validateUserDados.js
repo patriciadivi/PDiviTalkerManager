@@ -5,12 +5,9 @@ const validateUserDados = (req, res, next) => {
      
     const errorName = validateName(name);
     const errorAge = validateAge(age);
-    
-    const validateAllParams = [errorName, errorAge];
 
-    validateAllParams.forEach((error) => {
-            if (error) return res.status(400).json(error);
-    });
+    if (errorName) return res.status(400).json(errorName);
+    if (errorAge) return res.status(400).json(errorAge);
 
     next();
 };

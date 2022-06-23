@@ -40,7 +40,6 @@ app.post('/login', validateUser, async (req, res) => {
     return res.status(400).json({ message: 'Email e senha são obrigatórios' });
   }
   const newToken = tokenGenerator();
-  // console.log(newToken);
   const tokenNow = newToken;
   await tokenWrite(tokenNow);
   
@@ -65,8 +64,24 @@ app.post('/talker', validateAuthorization, validateUserDados,
 
 // 6 Requisito - Crie o endpoint PUT /talker/:id
 
-app.put('/talker/:id', (_req, res) => {
-  res.status(200).json({ message: 'OK' });
+app.put('/talker/:id', validateAuthorization, validateUserDados, 
+validateUserTalk, validateUserTalkAll, async (req, res) => {
+  const { id: talkerId } = req.params;
+  // console.log(talkerId);
+  const talkerRead = await read();
+  const { name, age } = req.body;
+  const { talk } = req.body;
+
+  const dataBody = { id: talkerId, name, age, talk };
+  if (!dataBody) {
+   return res.status(400).json({ message: 'Dados incorretos' });
+ }
+
+  const talkersFilter = talkerRead.filter((talkerElement) => talkerElement.id !== +talkerId);
+  const dateTotal = [...talkersFilter, dataBody];
+  await write(dateTotal);
+  
+  res.status(200).json(dataBody);
 });
 
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
