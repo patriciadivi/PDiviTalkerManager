@@ -22,7 +22,6 @@ app.get('/talker', async (_req, res) => {
 
 // 2 Requisito - Crie o endpoint GET /talker/:id
 app.get('/talker/:id', async (req, res) => {
-  // console.log(req.body);
   const { id: talkerId } = req.params;
   const talkers = await read();
   const getId = talkers.find((talkerElement) => talkerElement.id === +talkerId);
@@ -72,16 +71,17 @@ validateUserTalk, validateUserTalkAll, async (req, res) => {
   const { name, age } = req.body;
   const { talk } = req.body;
 
-  const dataBody = { id: talkerId, name, age, talk };
-  if (!dataBody) {
-   return res.status(400).json({ message: 'Dados incorretos' });
+  try {
+   const dataBody = { id: Number(talkerId), name, age, talk };
+   const talkersFilter = talkerRead
+    .filter((talkerElement) => talkerElement.id !== Number(talkerId));
+   const dateTotal = [...talkersFilter, dataBody];
+   await write(dateTotal);
+   return res.status(200).json(dataBody);
+ } catch (error) {
+  console.log(error.message);
+  return error.message;
  }
-
-  const talkersFilter = talkerRead.filter((talkerElement) => talkerElement.id !== +talkerId);
-  const dateTotal = [...talkersFilter, dataBody];
-  await write(dateTotal);
-  
-  res.status(200).json(dataBody);
 });
 
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
