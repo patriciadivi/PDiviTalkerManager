@@ -62,7 +62,6 @@ app.post('/talker', validateAuthorization, validateUserDados,
 });
 
 // 6 Requisito - Crie o endpoint PUT /talker/:id
-
 app.put('/talker/:id', validateAuthorization, validateUserDados, 
 validateUserTalk, validateUserTalkAll, async (req, res) => {
   const { id: talkerId } = req.params;
@@ -85,6 +84,18 @@ validateUserTalk, validateUserTalkAll, async (req, res) => {
 });
 
 // 7 Requisito - Crie o endpoint DELETE /talker/:id
+app.delete('/talker/:id', validateAuthorization, async (req, res) => {
+  const { id: talkerId } = req.params;
+  const talkerRead = await read();
+
+  const talkersFilter = talkerRead
+    .filter((talkerElement) => talkerElement.id !== Number(talkerId));
+
+  await write(talkersFilter);
+  
+  return res.status(204).json();
+});
+
 // 8 Requisito - Crie o endpoint GET /talker/search?q=searchTerm
 
 const HTTP_OK_STATUS = 200;
