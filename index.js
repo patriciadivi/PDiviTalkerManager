@@ -20,6 +20,20 @@ app.get('/talker', async (_req, res) => {
   return res.status(200).json(getAll);
 });
 
+// 8 Requisito - Crie o endpoint GET /talker/search?q=searchTerm
+app.get('/talker/search', validateAuthorization, async (req, res) => {
+  const { q } = req.query;
+  console.log(q);
+  const talkers = await read();
+
+  if (q == null) return res.status(200).json(talkers);
+
+  const results = talkers
+    .filter((talker) => talker.name.toLowerCase().includes(q.toLowerCase()));
+    
+  return res.status(200).json(results);
+});
+
 // 2 Requisito - Crie o endpoint GET /talker/:id
 app.get('/talker/:id', async (req, res) => {
   const { id: talkerId } = req.params;
@@ -95,8 +109,6 @@ app.delete('/talker/:id', validateAuthorization, async (req, res) => {
   
   return res.status(204).json();
 });
-
-// 8 Requisito - Crie o endpoint GET /talker/search?q=searchTerm
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
